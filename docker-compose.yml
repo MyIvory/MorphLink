@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: ./frontend
+      target: development    # Використовуємо development stage для розробки
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "80:5173"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:3000
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+  backend:
+    build: 
+      context: ./backend
+      target: development    # Використовуємо development stage для бекенда
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/src:/app/src
+    environment:
+      - NODE_ENV=development

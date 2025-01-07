@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="500" height="600" viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Контур обличчя -->
+  <path
+    d="M250 100 
+       C 400 100, 450 300, 450 400
+       C 450 500, 350 550, 250 550
+       C 150 550,  50 500,  50 400
+       C  50 300, 100 100, 250 100"
+    fill="none"
+    stroke="black"
+    stroke-width="3"
+  />
+  
+  <!-- Очі -->
+  <ellipse cx="175" cy="250" rx="30" ry="20" fill="none" stroke="black" stroke-width="3"/>
+  <ellipse cx="325" cy="250" rx="30" ry="20" fill="none" stroke="black" stroke-width="3"/>
+  
+  <!-- Ніс -->
+  <path
+    d="M250 300 
+       C 260 350, 270 380, 250 400
+       C 230 380, 240 350, 250 300"
+    fill="none"
+    stroke="black"
+    stroke-width="3"
+  />
+  
+  <!-- Рот -->
+  <path
+    d="M200 450
+       C 250 480, 300 450, 300 450"
+    fill="none"
+    stroke="black"
+    stroke-width="3"
+  />
+</svg>

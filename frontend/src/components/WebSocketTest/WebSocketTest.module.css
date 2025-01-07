@@ -1,0 +1,72 @@
+.websocketSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  color: white;
+  margin: 20px;
+}
+
+.status {
+  margin: 15px 0;
+  font-size: 1.1em;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.controls button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background: #2c2c2c;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.controls button:hover:not(:disabled) {
+  background: #3c3c3c;
+}
+
+.controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.log {
+  width: 80%;
+  height: 200px;
+  overflow-y: auto;
+  background: #2c2c2c;
+  border-radius: 4px;
+  padding: 15px;
+  margin:auto
+}
+
+.logContent {
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  color: black;
+}
+
+.logMessage {
+  margin-bottom: 5px;
+  padding: 5px 0;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.logMessage:last-child {
+  border-bottom: none;
+}
