@@ -7,7 +7,7 @@ import styles from './Home.module.css';
 
 // Використовуємо WebSocket URL з env змінної або за замовчуванням
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:3000';
-const ROOM_ID = 'test-room';
+const ROOM_ID = import.meta.env.ROOM_ID || 'test-room';
 
 export const Home: React.FC = () => {
   const { emit, on, off, connected, wsService } = useWebSocket(WEBSOCKET_URL);

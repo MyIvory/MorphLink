@@ -1,7 +1,8 @@
 import { WebSocketGateway, WebSocketServer, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { JoinRoomDto, FaceDataDto } from './types/face-data.type';
 import { Logger } from '@nestjs/common';
+import { JoinRoomDto, FaceMessageDto } from './dto/face.dto';
+import { FaceMessage, JoinRoomMessage } from './interfaces/face.interface';
 
 @WebSocketGateway({
   cors: {
@@ -19,7 +20,7 @@ export class FaceGateway {
   private readonly logger = new Logger(FaceGateway.name);
 
   @SubscribeMessage('join_room')
-  async handleJoinRoom(client: Socket, payload: any) {
+  async handleJoinRoom(client: Socket, payload: JoinRoomMessage) {
     try {
       this.logger.log(`[WS] Received join_room event from client ${client.id} with payload:`, payload);
       
@@ -50,9 +51,9 @@ export class FaceGateway {
   }
 
   @SubscribeMessage('face_data')
-  async handleFaceData(client: Socket, payload: any) {
+  async handleFaceData(client: Socket, payload: FaceMessage) {
     try {
-      this.logger.debug(`[WS] Received face_data event from client ${client.id} with payload:`, payload);
+      // this.logger.debug(`[WS] Received face_data event from client ${client.id} with payload:`, payload);
       
       // Перевіряємо структуру даних
       if (!payload || !payload.roomId || !payload.faceData) {
@@ -61,8 +62,6 @@ export class FaceGateway {
       }
 
       const { roomId, faceData } = payload;
-      
-      this.logger.log(`[WS] Received face data from client ${client.id} for room: ${roomId}`);
       
       // Відправляємо дані всім в кімнаті, крім відправника
       client.to(roomId).emit('face_data', payload);

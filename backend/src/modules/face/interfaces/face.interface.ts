@@ -13,16 +13,17 @@ export interface FaceExpressions {
   angry: number;
 }
 
-export interface FaceData {
+export interface Face {
   landmarks: FaceLandmarks;
   expressions: FaceExpressions;
 }
 
-export interface JoinRoomDto {
-  room: string;
+// WebSocket message interfaces
+export interface FaceMessage {
+  roomId: string;
+  faceData: Face;
 }
 
-export interface FaceDataDto {
-  roomId: string;
-  faceData: FaceData;
+export interface JoinRoomMessage {
+  room: string;
 }

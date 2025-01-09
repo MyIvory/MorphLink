@@ -28,11 +28,14 @@ WORKDIR /app
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
 
-RUN npm install --production
+# Встановлюємо тільки production залежності
+RUN npm install --only=production
 
 EXPOSE 3000
 
+# Запускаємо додаток
 CMD ["node", "dist/main.js"]
 
 # Development stage

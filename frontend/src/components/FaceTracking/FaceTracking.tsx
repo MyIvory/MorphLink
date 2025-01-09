@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import * as faceapi from '@vladmandic/face-api';
 import { FaceDataEvent } from '../../types/websocket.types';
 
@@ -69,7 +69,7 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
         ctx.fillStyle = '#00FF00';
         resizedDetections.landmarks.positions.forEach(point => {
           ctx.beginPath();
-          ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+          ctx.arc(point.x, point.y, 1, 0, 2 * Math.PI);
           ctx.fill();
         });
 
