@@ -36,7 +36,7 @@ export const useWebSocket = (url: string) => {
   }, [url]);
 
   const emit = useCallback(<T extends EventNames>(event: T, data: EventsMap[T]) => {
-    console.log('[useWebSocket] Emitting event:', event, data);
+  //  console.log('[useWebSocket] Emitting event:', event, data);
     wsServiceRef.current?.emit(event, data);
   }, []);
 

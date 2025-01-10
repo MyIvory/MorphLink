@@ -56,7 +56,7 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
         .withFaceExpressions();
 
       if (detections) {
-        console.log('Face detected:', detections);
+      //  console.log('Face detected:', detections);
         
         faceapi.matchDimensions(canvas, displaySize);
         const resizedDetections = faceapi.resizeResults(detections, displaySize);

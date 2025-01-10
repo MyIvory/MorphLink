@@ -110,7 +110,7 @@ export const Home: React.FC = () => {
       return;
     }
 
-    console.log('[Home] Sending face data to room:', ROOM_ID);
+   // console.log('[Home] Sending face data to room:', ROOM_ID);
     emit('face_data', {
       roomId: ROOM_ID,
       faceData

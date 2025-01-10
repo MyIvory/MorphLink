@@ -63,8 +63,8 @@ export class FaceGateway {
 
       const { roomId, faceData } = payload;
       
-      // Відправляємо дані всім в кімнаті, крім відправника
-      client.to(roomId).emit('face_data', payload);
+      // Відправляємо дані всім в кімнаті, включаючи відправника
+      this.server.to(roomId).emit('face_data', payload);
       
       return payload;
     } catch (error) {

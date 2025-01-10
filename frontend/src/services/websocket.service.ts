@@ -70,7 +70,7 @@ export class WebSocketService {
       return;
     }
 
-    console.log(`[WS] Emitting event ${event}:`, data);
+  //  console.log(`[WS] Emitting event ${event}:`, data);
     this.socket.emit(event, data);
   }
 
