@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as faceapi from '@vladmandic/face-api';
 import { FaceDataEvent } from '../../types/websocket.types';
 
@@ -13,6 +13,7 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
   const frameRef = useRef<number>();
   const lastUpdateRef = useRef<number>(0);
   const UPDATE_INTERVAL = 10;
+  const [showPoints, setShowPoints] = useState(true);
 
   useEffect(() => {
     if (!stream || !videoRef.current) {
@@ -36,10 +37,9 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
   }, [stream]);
 
   const detectFace = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current) return;
 
     const video = videoRef.current;
-    const canvas = canvasRef.current;
     const displaySize = { width: video.width, height: video.height };
 
     const now = Date.now();
@@ -56,22 +56,24 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
         .withFaceExpressions();
 
       if (detections) {
-      //  console.log('Face detected:', detections);
-        
-        faceapi.matchDimensions(canvas, displaySize);
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#00FF00';
-        resizedDetections.landmarks.positions.forEach(point => {
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, 1, 0, 2 * Math.PI);
-          ctx.fill();
-        });
+        // Малюємо точки тільки якщо вони включені і канвас існує
+        if (showPoints && canvasRef.current) {
+          const canvas = canvasRef.current;
+          faceapi.matchDimensions(canvas, displaySize);
+          
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00FF00';
+            resizedDetections.landmarks.positions.forEach(point => {
+              ctx.beginPath();
+              ctx.arc(point.x, point.y, 1, 0, 2 * Math.PI);
+              ctx.fill();
+            });
+          }
+        }
 
         const faceData = {
           landmarks: {
@@ -94,7 +96,7 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
     }
 
     frameRef.current = requestAnimationFrame(detectFace);
-  }, [onFaceData]);
+  }, [onFaceData, showPoints]);
 
   useEffect(() => {
     if (!stream || !videoRef.current) return;
@@ -139,20 +141,39 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
           background: '#000'
         }}
       />
-      <canvas
-        ref={canvasRef}
-        width={640}
-        height={480}
+      <button
+        onClick={() => setShowPoints(!showPoints)}
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          transform: 'scaleX(-1)',
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none'
+          top: '10px',
+          right: '10px',
+          zIndex: 10,
+          padding: '8px 16px',
+          background: '#4a4a4a',
+          border: 'none',
+          borderRadius: '4px',
+          color: 'white',
+          cursor: 'pointer'
         }}
-      />
+      >
+        {showPoints ? 'Hide Points' : 'Show Points'}
+      </button>
+      {showPoints && (
+        <canvas
+          ref={canvasRef}
+          width={640}
+          height={480}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            transform: 'scaleX(-1)',
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
     </div>
   );
 };
