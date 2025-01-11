@@ -11,50 +11,43 @@ export const useWebSocket = (url: string) => {
   const wsServiceRef = useRef<WebSocketService | null>(null);
 
   useEffect(() => {
-    console.log('[useWebSocket] Creating new WebSocket service');
     wsServiceRef.current = new WebSocketService(url);
 
-    const handleConnect = () => {
-      console.log('[useWebSocket] Connected');
-      setConnected(true);
-    };
-
-    const handleDisconnect = () => {
-      console.log('[useWebSocket] Disconnected');
-      setConnected(false);
-    };
-
-    wsServiceRef.current.onConnect(handleConnect);
-    wsServiceRef.current.onDisconnect(handleDisconnect);
-    wsServiceRef.current.connect();
+    wsServiceRef.current.onConnect(() => setConnected(true));
+    wsServiceRef.current.onDisconnect(() => setConnected(false));
 
     return () => {
-      console.log('[useWebSocket] Cleaning up');
       wsServiceRef.current?.disconnect();
       wsServiceRef.current = null;
     };
   }, [url]);
 
+  const connect = useCallback(() => {
+    wsServiceRef.current?.connect();
+  }, []);
+
+  const disconnect = useCallback(() => {
+    wsServiceRef.current?.disconnect();
+  }, []);
+
   const emit = useCallback(<T extends EventNames>(event: T, data: EventsMap[T]) => {
-  //  console.log('[useWebSocket] Emitting event:', event, data);
     wsServiceRef.current?.emit(event, data);
   }, []);
 
   const on = useCallback(<T extends EventNames>(event: T, handler: MessageHandler<T>) => {
-    console.log('[useWebSocket] Subscribing to event:', event);
     wsServiceRef.current?.on(event, handler);
   }, []);
 
   const off = useCallback(<T extends EventNames>(event: T, handler: MessageHandler<T>) => {
-    console.log('[useWebSocket] Unsubscribing from event:', event);
     wsServiceRef.current?.off(event, handler);
   }, []);
 
   return {
     connected,
+    connect,
+    disconnect,
     emit,
     on,
-    off,
-    wsService: wsServiceRef.current
+    off
   };
 };
