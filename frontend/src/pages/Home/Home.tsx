@@ -27,7 +27,7 @@ export const Home: React.FC = () => {
     };
 
     const handleFaceData = (data: FaceDataEvent) => {
-      console.log('[Home] Received face data from room:', data.roomId);
+    //  console.log('[Home] Received face data from room:', data.roomId);
       setReceivedFaceData(data.faceData);
     };
 

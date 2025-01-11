@@ -12,7 +12,7 @@ export const FaceTracking: React.FC<FaceTrackingProps> = ({ stream, onFaceData }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number>();
   const lastUpdateRef = useRef<number>(0);
-  const UPDATE_INTERVAL = 100;
+  const UPDATE_INTERVAL = 10;
 
   useEffect(() => {
     if (!stream || !videoRef.current) {

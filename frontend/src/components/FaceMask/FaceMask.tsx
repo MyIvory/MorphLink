@@ -23,7 +23,6 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Встановлюємо фіксований розмір canvas як у відео
     canvas.width = 640;
     canvas.height = 480;
 
@@ -60,16 +59,16 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
     };
 
     // Функція для малювання маски
-    const drawMask = () => {
-      if (!ctx) return;
+    const drawMask = (ctx: CanvasRenderingContext2D, faceData: NonNullable<FaceDataEvent['faceData']>) => {
+      if (!ctx || !faceData.landmarks?.points) return;
 
       // Створюємо шлях для маски
       ctx.beginPath();
 
       // Малюємо контур обличчя знизу
-      const jawLine = points.slice(0, 17);
-      const leftEyebrow = points.slice(17, 22);
-      const rightEyebrow = points.slice(22, 27).reverse();
+      const jawLine = faceData.landmarks.points.slice(0, 17);
+      const leftEyebrow = faceData.landmarks.points.slice(17, 22);
+      const rightEyebrow = faceData.landmarks.points.slice(22, 27).reverse();
 
       // Зміщуємо брови вгору для створення верхнього контуру маски
       const offset = 20; // пікселів вгору
@@ -108,25 +107,53 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
       // Замикаємо контур
       ctx.closePath();
 
-      // Заливка маски
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      // Очищаємо область маски
+      ctx.save();
+      ctx.clip();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Базовий колір
+      ctx.fillStyle = '#E8E8E8';
       ctx.fill();
 
-      // Додаємо градієнт для об'ємного ефекту
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, 0,
-        canvas.width / 2, canvas.height / 2, canvas.width / 2
+      // Основний градієнт зліва направо
+      ctx.globalCompositeOperation = 'multiply';
+      const mainGradient = ctx.createLinearGradient(
+        canvas.width * 0.2, 0,
+        canvas.width * 0.8, 0
       );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-      gradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
-      ctx.fillStyle = gradient;
+      mainGradient.addColorStop(0, '#808080');
+      mainGradient.addColorStop(0.5, '#FFFFFF');
+      mainGradient.addColorStop(1, '#808080');
+      ctx.fillStyle = mainGradient;
       ctx.fill();
+
+      // Вертикальний градієнт
+      const verticalGradient = ctx.createLinearGradient(
+        0, canvas.height * 0.2,
+        0, canvas.height * 0.8
+      );
+      verticalGradient.addColorStop(0, '#FFFFFF');
+      verticalGradient.addColorStop(0.5, '#A0A0A0');
+      verticalGradient.addColorStop(1, '#FFFFFF');
+      ctx.fillStyle = verticalGradient;
+      ctx.fill();
+
+      // Повертаємо нормальний режим накладання
+      ctx.globalCompositeOperation = 'source-over';
+      
+      // Додаємо контур
+      ctx.strokeStyle = '#909090';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.restore();
 
       // Малюємо чорні очі
       ctx.fillStyle = '#000000';
       
       // Ліве око
-      const leftEye = points.slice(36, 42);
+      const leftEye = faceData.landmarks.points.slice(36, 42);
       const smoothLeftEye = interpolatePoints(leftEye);
       ctx.beginPath();
       ctx.moveTo(smoothLeftEye[0].x, smoothLeftEye[0].y);
@@ -137,7 +164,7 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
       ctx.fill();
 
       // Праве око
-      const rightEye = points.slice(42, 48);
+      const rightEye = faceData.landmarks.points.slice(42, 48);
       const smoothRightEye = interpolatePoints(rightEye);
       ctx.beginPath();
       ctx.moveTo(smoothRightEye[0].x, smoothRightEye[0].y);
@@ -148,7 +175,7 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
       ctx.fill();
 
       // Малюємо губи (зовнішня частина)
-      const outerLips = points.slice(48, 60);
+      const outerLips = faceData.landmarks.points.slice(48, 60);
       const smoothOuterLips = interpolatePoints(outerLips);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.beginPath();
@@ -160,7 +187,7 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
       ctx.fill();
 
       // Малюємо рот (внутрішня частина)
-      const innerLips = points.slice(60, 68);
+      const innerLips = faceData.landmarks.points.slice(60, 68);
       const smoothInnerLips = interpolatePoints(innerLips);
       ctx.fillStyle = '#000000';
       ctx.beginPath();
@@ -173,7 +200,7 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
 
       // Малюємо ніздрі
       // Точки основи носа: 31-35
-      const noseBase = points.slice(31, 36);
+      const noseBase = faceData.landmarks.points.slice(31, 36);
       
       // Ліва ніздря
       ctx.fillStyle = '#000000';
@@ -249,18 +276,20 @@ export const FaceMask: React.FC<FaceMaskProps> = ({ faceData }) => {
 
     // Функція для малювання контурів
     const drawContours = () => {
+      if (!faceData?.landmarks?.points) return;
+      
       // Малюємо очі
-      drawSmoothLine([...points.slice(36, 42), points[36]], '#000000'); // Ліве око
-      drawSmoothLine([...points.slice(42, 48), points[42]], '#000000'); // Праве око
+      drawSmoothLine([...faceData.landmarks.points.slice(36, 42), faceData.landmarks.points[36]], '#000000'); // Ліве око
+      drawSmoothLine([...faceData.landmarks.points.slice(42, 48), faceData.landmarks.points[42]], '#000000'); // Праве око
       
       // Малюємо губи
-      drawSmoothLine([...points.slice(48, 60), points[48]], 'rgba(255, 255, 255, 0.1)'); // Зовнішній контур
-      drawSmoothLine([...points.slice(60, 68), points[60]], 'rgba(255, 255, 255, 0.1)'); // Внутрішній контур
+      drawSmoothLine([...faceData.landmarks.points.slice(48, 60), faceData.landmarks.points[48]], 'rgba(255, 255, 255, 0.1)'); // Зовнішній контур
+      drawSmoothLine([...faceData.landmarks.points.slice(60, 68), faceData.landmarks.points[60]], 'rgba(255, 255, 255, 0.1)'); // Внутрішній контур
     };
 
     // Малюємо маску
     ctx.globalCompositeOperation = 'source-over';
-    drawMask();
+    drawMask(ctx, faceData);
 
     // Малюємо контури поверх маски
     ctx.globalCompositeOperation = 'source-over';
